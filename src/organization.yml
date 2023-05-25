@@ -40,7 +40,6 @@ Organization:
     Properties:
       OrganizationalUnitName: shared
       Accounts:
-        - !Ref OrgBuildAccount
         - !Ref SecurityAccount
         - !Ref LogArchiveAccount
 
