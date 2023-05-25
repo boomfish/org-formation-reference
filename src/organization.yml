@@ -19,7 +19,6 @@ Organization:
     Type: OC::ORG::OrganizationRoot
     Properties:
       DefaultOrganizationAccessRoleName: OrganizationAccountAccessRole
-      DefaultBuildAccessRoleName: OrganizationFormationBuildAccessRole
 
   # Organizational Unit used for Production workloads
   ProdOu:

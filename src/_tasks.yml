@@ -28,10 +28,6 @@ Budgets:
   Type: include
   Path: ./templates/040-budgets/_tasks.yml
 
-AccountCreation:
-  Type: include
-  Path: ./templates/050-account-creation/_tasks.yml
-
 CloudTrail:
   Type: include
   Path: ./templates/060-cloud-trail/_tasks.yml
