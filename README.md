@@ -117,54 +117,31 @@ npm install -g aws-organization-formation
 If you already have an existing organization, then the following command generates an organization.yml file for you based on the current structure of your organization.
 
 ```
-npx org-formation init organization.yml --region _Primary Region_ --cross-account-role-name OrganizationFormationBuildAccessRole --print-stack --verbose
+npx org-formation init organization.yml --region _Primary Region_ --print-stack --verbose
 ```
 
 You can then merge that with the ./src/organization.yml file in the way you like and continue with this guide.
 </details><br>
 
-2. Apply the organization.yml file to AWS Organizations. This means creating accounts and OUs and ordering them. This will also create the OrgBuild account where the org-formation build pipeline will reside.
+2. Apply the organization.yml file to AWS Organizations. This means creating accounts and OUs and ordering them.
 ```
 npx org-formation update ./src/organization.yml --verbose
 ```
-3. Create the role that the `org-formation` uses inside of the Management Account
+
+## 6. Validate and perform the `org-formation` task list
+
+Validate the task list
 ```
-aws cloudformation create-stack --stack-name org-formation-role --template-body file://src/templates/000-org-build/org-formation-role.yml
-```
-4. Zip this local repository into `000-org-build` to be used as the initial commit for the OrgBuild CodeCommit repository. From the top level of this repository, execute:
-```
-zip ./src/templates/000-org-build/initial-commit src/**/*.* .gitignore .org-formationrc *.yml *.json README.md
-```
-5. Deploy the stacks in `000-org-build`. This creates the build roles, state bucket and file and the OrgFormation build pipeline in the OrgBuild account. It also uploads this entire local repository as an initial commit to the Git repository that the build pipeline will then execute.
-```
-npx org-formation perform-tasks ./src/templates/000-org-build/_tasks.yml --organization-file ./src/organization.yml --max-concurrent-stacks 50 --max-concurrent-tasks 1 --print-stack --verbose
+npm run validate-tasks
 ```
 
-When you have finished the setup, we will need to delete the S3 bucket containing the state in the management account. This was created in step 2 because at that time the OrgBuild account, was assumed to not exist yet.
-
-## 6. Clone your new `org-formation` repository
-Here you will configure command line access to the CodeCommit repository that will trigger the Build Pipeline in the OrgBuild Account. It requires you to configure the aws cli to use SSO and the clone the repository using HTTPS git-remote-codecommit (GRC)
-
-1. Configure AWS CLI with AWS SSO by following [this guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html#sso-configure-profile-auto)
-
-You will need to provide the following details:
-
-| Parameter | Description | Example
-| ----- | ----------- | ---
-| SSO start URL | The landing page URL to be found in the AWS SSO of the management account | https://dgega332fa.awsapps.com/start
-| SSO region | The default region | us-east-1
-| SSO account id | Select the OrgBuild account from the drop-down | 222140350420
-| SSO role name | Select a role with write permission the drop-down | Administrator
-| CLI default client Region | The default region | us-east-1
-| CLI default output format | Whatever format you prefer | yaml
-| CLI profile name | Name of the profile, choose wisely | ba-orgbuild-admin
-
-2. Configure support for CodeCommit [git-remote-codecommit](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-git-remote-codecommit.html?icmpid=docs_acc_console_connect#setting-up-git-remote-codecommit-install)
-
-3. Using your IDP (either AWS SSO itself or an external IDP), log into the OrgBuild account, navigate to AWS CodeCommit, find the repository URL and clone
-
-It looks something like this
+(Optional; requires [pipx](https://pypa.github.io/pipx/)) Install cfn-lint and validate the stacks in the task list
 ```
-git clone codecommit::eu-central-1://<AWS_CLI_PROFILE_NAME>@organization-formation
+pipx install cfn-lint
+npm run cfn-lint
 ```
-4. You can now make changes, commit and push and that will be effectuated by the build pipeline in the OrgBuild Account
+
+Perform the task list
+```
+npm run perform-tasks
+```

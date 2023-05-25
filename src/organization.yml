@@ -65,13 +65,3 @@ Organization:
       Alias: '{{organization-name}}-log-archive'
       AccountName: Log Archive Account
       RootEmail: '{{log-archive-root-email-address}}'
-
-  OrgBuildAccount:
-    Type: OC::ORG::Account
-    Properties:
-      Alias: '{{organization-name}}-org-build'
-      AccountName: Organization Build Account
-      RootEmail: aws+org-build@{{email-domain}}
-      Tags:
-        budget-alarm-threshold: 200
-        budget-alarm-threshold-email-recipient: me@{{email-domain}}
