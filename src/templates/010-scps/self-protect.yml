@@ -26,12 +26,10 @@ Resources:
               - "iam:Update*"
             Resource:
               - "arn:aws:iam::*:role/OrganizationAccountAccessRole"
-              - "arn:aws:iam::*:role/OrganizationFormationBuildAccessRole"
               - "arn:aws:iam::*:role/community-types/*"
             Condition:
               ArnNotLike:
                 "aws:PrincipalARN":
-                  - "arn:aws:iam::*:role/OrganizationFormationBuildAccessRole"
                   - "arn:aws:iam::*:role/OrganizationAccountAccessRole"
           - Sid: DenyChangingSecureDefaults
             Effect: Deny

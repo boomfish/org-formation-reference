@@ -71,13 +71,3 @@ Organization:
       Tags:
         budget-alarm-threshold: 200
         budget-alarm-threshold-email-recipient: log-archive@{{email-domain}}
-
-  OrgBuildAccount:
-    Type: OC::ORG::Account
-    Properties:
-      Alias: '{{organization-name}}-org-build'
-      AccountName: Organization Build Account
-      RootEmail: aws+org-build@{{email-domain}}
-      Tags:
-        budget-alarm-threshold: 200
-        budget-alarm-threshold-email-recipient: me@{{email-domain}}
