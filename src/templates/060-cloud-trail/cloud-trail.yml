@@ -3,6 +3,14 @@ AWSTemplateFormatVersion: '2010-09-09-OC'
 Parameters:
   bucketName:
     Type: String
+  trailMinimumRetentionInDays:
+    Type: Number
+  trailRetentionMode:
+    Type: String
+    Default: GOVERNANCE
+    AllowedValues:
+      - GOVERNANCE
+      - COMPLIANCE
 
 Resources:
   CloudTrailBucket:
@@ -24,6 +32,13 @@ Resources:
               SSEAlgorithm: AES256
       VersioningConfiguration:
         Status: Enabled
+      ObjectLockEnabled: true
+      ObjectLockConfiguration:
+        ObjectLockEnabled: Enabled
+        Rule:
+          DefaultRetention:
+            Days: !Ref trailMinimumRetentionInDays
+            Mode: !Ref trailRetentionMode
 
   CloudTrailBucketPolicy:
     OrganizationBinding: !Ref LogArchiveBinding

@@ -16,3 +16,4 @@ CloudTrail:
   TerminationProtection: true
   Parameters:
     bucketName: !Sub '${resourcePrefix}-cloudtrail-${CurrentAccount.AccountId}'
+    trailMinimumRetentionInDays: 90
