@@ -45,6 +45,10 @@ CloudTrail:
   DependsOn: [ OrganizationBuild ]
   Path: ./templates/060-cloud-trail/_tasks.yml
 
+VpcFlowLogs:
+  Type: include
+  Path: ./templates/065-vpc-flowlogs/_tasks.yml
+
 GuardDuty:
   Type: include
   DependsOn: [ OrganizationBuild, Types ]
