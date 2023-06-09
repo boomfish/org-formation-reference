@@ -1,0 +1,75 @@
+Parameters:
+  <<: !Include '../../_parameters.yml'
+
+  appName:
+    Type: String
+    Default: 'terraform'
+
+  accountId:
+    Type: String
+    Description: The identifier from the account used to manage Terraform
+    Default: !Ref SecurityAccount
+
+  roleName:
+    Type: String
+    Default: 'AssumableTerraformRole'
+
+  maxAssumeRoleDuration:
+    Type: Number
+    Default: 3600
+
+TerraformStateManagement:
+  Type: update-stacks
+  Template: ./remote-state.yml
+  StackName: !Sub '${resourcePrefix}-${appName}-state'
+  StackDescription: Terraform - Remote State
+  DefaultOrganizationBindingRegion: !Ref primaryRegion
+  DefaultOrganizationBinding:
+    Account: !Ref accountId
+  Parameters:
+    resourcePrefix: !Ref resourcePrefix
+    appName: !Ref appName
+    bucketName: !Sub '${resourcePrefix}-${appName}-state-${accountId}'
+    lockingTableName: !Sub '${appName}-locks'
+
+TerraformSdlcRoles:
+  Type: update-stacks
+  DependsOn: TerraformStateManagement
+  Template: ./assume-roles.yml
+  StackName: !Sub '${resourcePrefix}-${appName}-sdlc-roles'
+  StackDescription: Terraform - SDLC Roles
+  DefaultOrganizationBindingRegion: !Ref primaryRegion
+  DefaultOrganizationBinding:
+    Account: !Ref accountId
+  OrganizationBindings:
+    TargetBinding:
+      OrganizationalUnit:
+        - !Ref SdlcOu
+  Parameters:
+    roleName: !Ref roleName
+    maxAssumeRoleDuration: !Ref maxAssumeRoleDuration
+    accountId: !Ref accountId
+    iamPolicyName: !Sub '${resourcePrefix}-${appName}-assume-sdlc'
+    iamGroupName: !Sub '${resourcePrefix}-${appName}-sdlc'
+    stateReadWritePolicyArn: !Sub 'arn:aws:iam::${accountId}:policy/${resourcePrefix}-${appName}-state-rw-sdlc'
+
+TerraformProdRoles:
+  Type: update-stacks
+  DependsOn: TerraformStateManagement
+  Template: ./assume-roles.yml
+  StackName: !Sub '${resourcePrefix}-${appName}-prod-roles'
+  StackDescription: Terraform - SDLC Roles
+  DefaultOrganizationBindingRegion: !Ref primaryRegion
+  DefaultOrganizationBinding:
+    Account: !Ref accountId
+  OrganizationBindings:
+    TargetBinding:
+      OrganizationalUnit:
+        - !Ref ProdOu
+  Parameters:
+    roleName: !Ref roleName
+    maxAssumeRoleDuration: !Ref maxAssumeRoleDuration
+    accountId: !Ref accountId
+    iamPolicyName: !Sub '${resourcePrefix}-${appName}-assume-prod'
+    iamGroupName: !Sub '${resourcePrefix}-${appName}-prod'
+    stateReadWritePolicyArn: !Sub 'arn:aws:iam::${accountId}:policy/${resourcePrefix}-${appName}-state-rw-prod'

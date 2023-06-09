@@ -45,6 +45,11 @@ AwsConfigInventory:
   Type: include
   Path: ./templates/080-aws-config-inventory/_tasks.yml
 
+Terraform:
+  Type: include
+  DependsOn: [ Types ]
+  Path: ./templates/090-terraform/_tasks.yml
+
 AwsSso:
   Type: include
   DependsOn: [ Types, SeviceControlPolicies ]

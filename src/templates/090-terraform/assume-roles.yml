@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09-OC'
+
+Parameters:
+  roleName:
+    Type: String
+  accountId:
+    Description: The identifier from the account used to manage Terraform
+    Type: String
+  maxAssumeRoleDuration:
+    Type: Number
+  iamPolicyName:
+    Type: String
+  iamGroupName:
+    Type: String
+  stateReadWritePolicyArn:
+    Type: String
+
+Resources:
+
+  AssumableTerraformRole:
+    OrganizationBinding: !Ref TargetBinding
+    Type: AWS::IAM::Role
+    Properties:
+      MaxSessionDuration: !Ref maxAssumeRoleDuration
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${accountId}:root'
+      Policies:
+        - PolicyName: TerraformApplyAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: AdminAccess
+                Effect: Allow
+                Action:
+                  - '*'
+                Resource:
+                  - '*'
+      RoleName: !Ref roleName
+
+  AssumeTerraformRolePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Ref iamPolicyName
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Resource: Fn::EnumTargetAccounts TargetBinding 'arn:aws:iam::${account}:role/${roleName}'
+
+  AssumeTerraformGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: !Ref iamGroupName
+      Path: /terraform/
+      ManagedPolicyArns:
+        - !Ref stateReadWritePolicyArn
+        - !Ref AssumeTerraformRolePolicy

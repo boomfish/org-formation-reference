@@ -30,6 +30,16 @@ Parameters:
     Type: String
     Default: '{{sso-supporter-group-id}}'
 
+  terraformAccountId:
+    Type: String
+    Description: The identifier from the account used to manage Terraform
+    Default: !Ref SecurityAccount
+
+  terraformAppName:
+    Type: String
+    Description: App name used in Terraform stacks
+    Default: 'terraform'
+
 SsoAdministrator:
   Type: update-stacks
   Template: ./aws-sso.yml
@@ -170,3 +180,43 @@ SsoViewerSupporter:
     instanceArn: !Ref instanceArn
     principalId: !Ref supporterGroup
     permissionSetArn: !CopyValue [ !Sub '${resourcePrefix}-${appName}-viewer-permission-set-arn' ]
+
+SsoTerraformDeveloper:
+  Type: update-stacks
+  Template: ./aws-sso-terraform.yml
+  StackName: !Sub '${resourcePrefix}-${appName}-${terraformAppName}-developer'
+  StackDescription: 'Terraform role used by Developer group from Terraform management account'
+  TerminationProtection: false
+  DefaultOrganizationBindingRegion: !Ref primaryRegion
+  DefaultOrganizationBinding:
+    IncludeMasterAccount: true
+  OrganizationBindings:
+    TargetBinding:
+      Account: !Ref terraformAccountId
+  Parameters:
+    instanceArn: !Ref instanceArn
+    principalId: !Ref developerGroup
+    permissionSetName: 'TerraformDeveloper'
+    stateReadWritePolicyName: !Sub '${resourcePrefix}-${terraformAppName}-state-rw-sdlc'
+    assumeTerraformRolePolicyName: !Sub '${resourcePrefix}-${terraformAppName}-assume-sdlc'
+    sessionDuration: 'PT12H'
+
+SsoTerraformSupporter:
+  Type: update-stacks
+  Template: ./aws-sso-terraform.yml
+  StackName: !Sub '${resourcePrefix}-${appName}-${terraformAppName}-supporter'
+  StackDescription: 'Terraform role used by Supporter group from Terraform management account'
+  TerminationProtection: false
+  DefaultOrganizationBindingRegion: !Ref primaryRegion
+  DefaultOrganizationBinding:
+    IncludeMasterAccount: true
+  OrganizationBindings:
+    TargetBinding:
+      Account: !Ref terraformAccountId
+  Parameters:
+    instanceArn: !Ref instanceArn
+    principalId: !Ref supporterGroup
+    permissionSetName: 'TerraformSupporter'
+    stateReadWritePolicyName: !Sub '${resourcePrefix}-${terraformAppName}-state-rw-prod'
+    assumeTerraformRolePolicyName: !Sub '${resourcePrefix}-${terraformAppName}-assume-prod'
+    sessionDuration: 'PT1H'

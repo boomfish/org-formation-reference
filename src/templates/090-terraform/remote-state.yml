@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  resourcePrefix:
+    Type: String
+  appName:
+    Type: String
+  bucketName:
+    Type: String
+  lockingTableName:
+    Type: String
+  prodWorkspacePrefix:
+    Type: String
+    Default: env:/prod
+  testWorkspacePrefix:
+    Type: String
+    Default: env:/test
+  devWorkspacePrefix:
+    Type: String
+    Default: env:/dev
+
+Resources:
+
+  RemoteStateBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref bucketName
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  LockingTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref lockingTableName
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      AttributeDefinitions:
+        - AttributeName: 'LockID'
+          AttributeType: S
+      KeySchema:
+        - AttributeName: 'LockID'
+          KeyType: HASH
+
+  TerraformStateReadWriteSdlcPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub '${resourcePrefix}-${appName}-state-rw-sdlc'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:DeleteItem
+            Effect: Allow
+            Resource: !GetAtt LockingTable.Arn
+          - Action:
+              - s3:ListBucket
+            Effect: Allow
+            Resource: !GetAtt RemoteStateBucket.Arn
+          - Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:DeleteObject
+            Effect: Allow
+            Resource:
+              - !Sub ${RemoteStateBucket.Arn}/${devWorkspacePrefix}*
+              - !Sub ${RemoteStateBucket.Arn}/${testWorkspacePrefix}*
+
+  TerraformStateReadWriteProdPolicy:
+    Properties:
+      ManagedPolicyName: !Sub '${resourcePrefix}-${appName}-state-rw-prod'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:DeleteItem
+            Effect: Allow
+            Resource: !GetAtt LockingTable.Arn
+          - Action:
+              - s3:ListBucket
+            Effect: Allow
+            Resource: !GetAtt RemoteStateBucket.Arn
+          - Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:DeleteObject
+            Effect: Allow
+            Resource: !Sub ${RemoteStateBucket.Arn}/${prodWorkspacePrefix}*
+    Type: AWS::IAM::ManagedPolicy
+
+Outputs:
+  StateReadWriteSdlcPolicy:
+    Value: !Ref TerraformStateReadWriteSdlcPolicy
+    Export:
+      Name: !Sub '${AWS::StackName}-rw-sdlc-policy'
+  StateReadWriteProdPolicy:
+    Value: !Ref TerraformStateReadWriteProdPolicy
+    Export:
+      Name: !Sub '${AWS::StackName}-rw-prod-policy'
