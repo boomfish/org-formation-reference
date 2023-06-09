@@ -8,6 +8,15 @@ Parameters:
     Type: String
     Description: The identifier from the account used to manage GuardDuty
 
+  inviteAccounts:
+    Type: String
+    Description: Invite member accounts to GuardDuty administrator account?
+    Default: 'true'
+
+Conditions:
+
+  handleInvitations: !Equals [ 'true', !Ref inviteAccounts ]
+
 Resources:
 
   GuardDutyBucket:
@@ -55,6 +64,7 @@ Resources:
       FindingPublishingFrequency: FIFTEEN_MINUTES
 
   Master:
+    Condition: handleInvitations
     OrganizationBinding: !Ref MemberBinding
     Type: AWS::GuardDuty::Master
     Properties:
@@ -62,6 +72,7 @@ Resources:
       MasterId: !Ref accountId
 
   Member:
+    Condition: handleInvitations
     Type: AWS::GuardDuty::Member
     ForeachAccount:
       !Ref MemberBinding
