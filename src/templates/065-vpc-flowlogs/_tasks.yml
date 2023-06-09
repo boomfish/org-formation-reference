@@ -1,0 +1,24 @@
+Parameters:
+  <<: !Include '../../_parameters.yml'
+
+  accountId:
+    Type: String
+    Description: The identifier from the account used to manage Terraform
+    Default: !Ref LogArchiveAccount
+
+VpcFlowLogs:
+  Type: update-stacks
+  Template: ./flowlogs-bucket.yml
+  StackName: !Sub '${resourcePrefix}-vpc-flowlogs'
+  StackDescription: VPC Flowlogs
+  DefaultOrganizationBindingRegion: !Ref primaryRegion
+  DefaultOrganizationBinding:
+    Account: !Ref accountId
+  OrganizationBindings:
+    AllBinding:
+      Account: '*'
+      IncludeMasterAccount: true
+  TerminationProtection: false
+  Parameters:
+    bucketName: !Sub '${resourcePrefix}-flowlogs-${accountId}'
+    flowlogsMinRetentionInDays: 90
