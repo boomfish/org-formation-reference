@@ -10,6 +10,11 @@ Parameters:
     Description: The identifier from the account used to manage GuardDuty
     Default: !Ref SecurityAccount
 
+  inviteAccounts:
+    Type: String
+    Description: Invite member accounts to GuardDuty administrator account?
+    Default: 'true'
+
 GuardDuty:
   Type: update-stacks
   Template: ./guard-duty.yml
@@ -30,9 +35,12 @@ GuardDuty:
     AllBinding:
       Account: '*'
       IncludeMasterAccount: true
+      Region: !Ref primaryRegion
+#      Region: !Ref allRegions
   Parameters:
     resourcePrefix: !Ref resourcePrefix
     accountId: !Ref accountId
+    inviteAccounts: !Ref inviteAccounts
 
 # bucket that contains the trusted IP addresses that are excluded from GuardDuty findings
 GuardDutyTrustedIpsBucket:
