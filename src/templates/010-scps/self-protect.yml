@@ -50,7 +50,7 @@ Resources:
             Condition:
               ArnNotLike:
                 "aws:PrincipalARN":
-                  - "arn:aws:iam::*:role/OrganizationFormationBuildAccessRole"
+                  - "arn:aws:iam::*:role/OrganizationAccountAccessRole"
           - Sid: DenyRegisterType
             Effect: Deny
             Action:
@@ -60,4 +60,4 @@ Resources:
             Condition:
               ArnNotLike:
                 "aws:PrincipalARN":
-                  - "arn:aws:iam::*:role/OrganizationFormationBuildAccessRole"
+                  - "arn:aws:iam::*:role/OrganizationAccountAccessRole"
