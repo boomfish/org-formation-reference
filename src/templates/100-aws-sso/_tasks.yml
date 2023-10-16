@@ -197,6 +197,7 @@ SsoTerraformDeveloper:
     instanceArn: !Ref instanceArn
     principalId: !Ref developerGroup
     permissionSetName: 'TerraformDeveloper'
+    stateReadOnlyPolicyName: !Sub '${resourcePrefix}-${terraformAppName}-state-ro'
     stateReadWritePolicyName: !Sub '${resourcePrefix}-${terraformAppName}-state-rw-sdlc'
     assumeTerraformRolePolicyName: !Sub '${resourcePrefix}-${terraformAppName}-assume-sdlc'
     sessionDuration: 'PT12H'
@@ -217,6 +218,7 @@ SsoTerraformSupporter:
     instanceArn: !Ref instanceArn
     principalId: !Ref supporterGroup
     permissionSetName: 'TerraformSupporter'
+    stateReadOnlyPolicyName: !Sub '${resourcePrefix}-${terraformAppName}-state-ro'
     stateReadWritePolicyName: !Sub '${resourcePrefix}-${terraformAppName}-state-rw-prod'
     assumeTerraformRolePolicyName: !Sub '${resourcePrefix}-${terraformAppName}-assume-prod'
     sessionDuration: 'PT1H'

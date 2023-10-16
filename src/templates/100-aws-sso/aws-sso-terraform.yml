@@ -16,6 +16,9 @@ Parameters:
     Type: String
     Default: AdministratorAccess
 
+  stateReadOnlyPolicyName:
+    Type: String
+
   stateReadWritePolicyName:
     Type: String
 
@@ -49,6 +52,8 @@ Resources:
       Description: !Sub '${permissionSetName} access to AWS organization'
       InstanceArn: !Ref instanceArn
       CustomerManagedPolicyReferences:
+        - Name: !Ref stateReadOnlyPolicyName
+          Path: !Ref terraformPolicyPath
         - Name: !Ref stateReadWritePolicyName
           Path: !Ref terraformPolicyPath
         - Name: !Ref assumeTerraformRolePolicyName

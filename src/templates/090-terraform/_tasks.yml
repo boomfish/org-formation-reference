@@ -51,6 +51,7 @@ TerraformSdlcRoles:
     accountId: !Ref accountId
     iamPolicyName: !Sub '${resourcePrefix}-${appName}-assume-sdlc'
     iamGroupName: !Sub '${resourcePrefix}-${appName}-sdlc'
+    stateReadOnlyPolicyArn: !Sub 'arn:aws:iam::${accountId}:policy/${resourcePrefix}-${appName}-state-ro'
     stateReadWritePolicyArn: !Sub 'arn:aws:iam::${accountId}:policy/${resourcePrefix}-${appName}-state-rw-sdlc'
 
 TerraformProdRoles:
@@ -72,4 +73,5 @@ TerraformProdRoles:
     accountId: !Ref accountId
     iamPolicyName: !Sub '${resourcePrefix}-${appName}-assume-prod'
     iamGroupName: !Sub '${resourcePrefix}-${appName}-prod'
+    stateReadOnlyPolicyArn: !Sub 'arn:aws:iam::${accountId}:policy/${resourcePrefix}-${appName}-state-ro'
     stateReadWritePolicyArn: !Sub 'arn:aws:iam::${accountId}:policy/${resourcePrefix}-${appName}-state-rw-prod'
