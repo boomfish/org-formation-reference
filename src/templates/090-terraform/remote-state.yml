@@ -52,6 +52,23 @@ Resources:
         - AttributeName: 'LockID'
           KeyType: HASH
 
+  TerraformStateReadOnlyPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub '${resourcePrefix}-${appName}-state-ro'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - s3:ListBucket
+            Effect: Allow
+            Resource: !GetAtt RemoteStateBucket.Arn
+          - Action:
+              - s3:GetObject
+            Effect: Allow
+            Resource:
+              - !Sub ${RemoteStateBucket.Arn}/*
+
   TerraformStateReadWriteSdlcPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -103,6 +120,10 @@ Resources:
     Type: AWS::IAM::ManagedPolicy
 
 Outputs:
+  StateReadOnlyPolicy:
+    Value: !Ref TerraformStateReadOnlyPolicy
+    Export:
+      Name: !Sub '${AWS::StackName}-ro-policy'
   StateReadWriteSdlcPolicy:
     Value: !Ref TerraformStateReadWriteSdlcPolicy
     Export:

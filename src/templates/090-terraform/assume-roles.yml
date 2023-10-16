@@ -12,6 +12,8 @@ Parameters:
     Type: String
   iamGroupName:
     Type: String
+  stateReadOnlyPolicyArn:
+    Type: String
   stateReadWritePolicyArn:
     Type: String
 
@@ -59,5 +61,6 @@ Resources:
       GroupName: !Ref iamGroupName
       Path: /terraform/
       ManagedPolicyArns:
+        - !Ref stateReadOnlyPolicyArn
         - !Ref stateReadWritePolicyArn
         - !Ref AssumeTerraformRolePolicy
