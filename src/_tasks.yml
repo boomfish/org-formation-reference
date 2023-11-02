@@ -61,5 +61,5 @@ Terraform:
 
 AwsSso:
   Type: include
-  DependsOn: [ Types, SeviceControlPolicies ]
+  DependsOn: [ Types, SeviceControlPolicies, Auditor, Terraform ]
   Path: ./templates/100-aws-sso/_tasks.yml

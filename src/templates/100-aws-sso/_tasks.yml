@@ -40,6 +40,23 @@ Parameters:
     Description: App name used in Terraform stacks
     Default: 'terraform'
 
+  auditorAppName:
+    Type: String
+    Description: App name used in Auditor stacks
+    Default: 'auditor'
+
+  prowlerAdditionsPolicyName:
+    Type: String
+    Default: 'prowler-additions'
+
+  prowlerSecurityHubPolicyName:
+    Type: String
+    Default: 'prowler-securityhub'
+
+  scoutSuitePolicyName:
+    Type: String
+    Default: 'scoutsuite'
+
 SsoAdministrator:
   Type: update-stacks
   Template: ./aws-sso.yml
@@ -122,7 +139,7 @@ SsoDeveloper:
 
 SsoAuditor:
   Type: update-stacks
-  Template: ./aws-sso.yml
+  Template: ./aws-sso-auditor.yml
   StackName: !Sub '${resourcePrefix}-${appName}-auditor'
   StackDescription: 'Audit role used by Auditor group within whole organization'
   TerminationProtection: false
@@ -136,8 +153,15 @@ SsoAuditor:
     instanceArn: !Ref instanceArn
     principalId: !Ref auditorGroup
     permissionSetName: 'Auditor'
-    managedPolicies: [ 'arn:aws:iam::aws:policy/SecurityAudit' ]
-    sessionDuration: 'PT1H'
+    managedPolicies:
+      - arn:aws:iam::aws:policy/SecurityAudit
+      - arn:aws:iam::aws:policy/job-function/ViewOnlyAccess
+    prowlerAdditionsPolicyName: !Sub '${resourcePrefix}-${auditorAppName}-${prowlerAdditionsPolicyName}'
+    prowlerSecurityHubPolicyName: !Sub '${resourcePrefix}-${auditorAppName}-${prowlerSecurityHubPolicyName}'
+    scoutSuitePolicyName: !Sub '${resourcePrefix}-${auditorAppName}-${scoutSuitePolicyName}'
+    sessionDuration: 'PT4H'
+    masterAccountId: !Ref ManagementAccount
+
 
 SsoViewer:
   Type: update-stacks
