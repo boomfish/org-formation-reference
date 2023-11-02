@@ -1,0 +1,19 @@
+Parameters:
+  <<: !Include '../../_parameters.yml'
+
+  appName:
+    Type: String
+    Default: 'config-aggregator'
+
+ConfigAggregator:
+  Type: update-stacks
+  Template: ./config-aggregator.yml
+  StackName: !Sub '${resourcePrefix}-${appName}'
+  StackDescription: AWS Config - Aggregator
+  TerminationProtection: false
+  DefaultOrganizationBindingRegion: !Ref primaryRegion
+  DefaultOrganizationBinding:
+    Account: !Ref SecurityAccount
+  OrganizationBindings:
+    AllRegionsBinding:
+      Region: !Ref allRegions

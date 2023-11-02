@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+
+  ConfigOrganizationAggregator:
+    Type: 'AWS::Config::ConfigurationAggregator'
+    Properties:
+      OrganizationAggregationSource:
+        RoleArn: !GetAtt ConfigAggregationRole.Arn
+        AwsRegions: Fn::EnumTargetRegions AllRegionsBinding '${region}'
+      ConfigurationAggregatorName: BaselineConfigOrganizationAggregator
+
+  ConfigAggregationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: config.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSConfigRoleForOrganizations

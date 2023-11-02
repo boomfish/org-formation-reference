@@ -45,6 +45,11 @@ AwsConfigInventory:
   Type: include
   Path: ./templates/080-aws-config-inventory/_tasks.yml
 
+#AwsConfigAggregator:
+#  Type: include
+#  DependsOn: [ AwsConfigInventory ]
+#  Path: ./templates/085-config-aggregator/_tasks.yml
+
 Terraform:
   Type: include
   DependsOn: [ Types ]

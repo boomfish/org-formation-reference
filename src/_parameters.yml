@@ -16,3 +16,8 @@ allRegions:
   Type: List<String>
   Default:
     - {{primary-aws-region}}
+
+# all regions you allow except for the primary region. may be an empty list if you only allow the primary region
+secondaryRegions:
+  Type: List<String>
+  Default: []
