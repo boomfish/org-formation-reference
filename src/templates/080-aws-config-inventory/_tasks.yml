@@ -19,6 +19,15 @@ ConfigBase:
   OrganizationBindings:
     LogArchiveBinding:
       Account: !Ref LogArchiveAccount
+    AllRegionsBinding:
+      IncludeMasterAccount: true
+      Account: '*'
+      Region: !Ref allRegions
+    SecondaryRegionsBinding:
+      IncludeMasterAccount: true
+      Account: '*'
+      Region: !Ref secondaryRegions
   Parameters:
     resourcePrefix: !Ref resourcePrefix
     bucketName: !Sub '${resourcePrefix}-${appName}-${CurrentAccount.AccountId}'
+    configRecorderRoleName: !Sub '${resourcePrefix}-${appName}-recorder-role'

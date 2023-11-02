@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: '2010-09-09-OC'
 
 Parameters:
   resourcePrefix:
@@ -7,6 +7,9 @@ Parameters:
   bucketName:
     Type: String
     Description: 'Name of the central S3 bucket containing AWS Config audit findings'
+
+  configRecorderRoleName:
+    Type: String
 
 Resources:
   ConfigAuditBucket:
@@ -61,14 +64,26 @@ Resources:
                 's3:x-amz-acl': 'bucket-owner-full-control'
 
   ConfigurationRecorder:
+    DependsOn: ConfigurationRecorderRole
     Type: 'AWS::Config::ConfigurationRecorder'
     Properties:
       RecordingGroup:
         AllSupported: true
         IncludeGlobalResourceTypes: true
-      RoleARN: !GetAtt ConfigurationRecorderRole.Arn
+      RoleARN: !Sub 'arn:aws:iam::${AWSAccount.AccountId}:role/${configRecorderRoleName}'
+
+  SecondaryConfigurationRecorder:
+    OrganizationBinding: !Ref SecondaryRegionsBinding
+    DependsOn: ConfigurationRecorderRole
+    Type: 'AWS::Config::ConfigurationRecorder'
+    Properties:
+      RecordingGroup:
+        AllSupported: true
+        IncludeGlobalResourceTypes: false
+      RoleARN: !Sub 'arn:aws:iam::${AWSAccount.AccountId}:role/${configRecorderRoleName}'
 
   DeliveryChannel:
+    OrganizationBinding: !Ref AllRegionsBinding
     Type: 'AWS::Config::DeliveryChannel'
     Properties:
       ConfigSnapshotDeliveryProperties:
@@ -102,3 +117,4 @@ Resources:
           - Effect: Allow
             Action: 's3:GetBucketAcl'
             Resource: !GetAtt ConfigAuditBucket.Arn
+      RoleName: !Ref configRecorderRoleName
