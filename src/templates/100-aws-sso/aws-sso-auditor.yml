@@ -16,16 +16,20 @@ Parameters:
     Type: String
     Default: AdministratorAccess
 
-  stateReadOnlyPolicyName:
+  managedPolicies:
+    Type: CommaDelimitedList
+    Default: arn:aws:iam::aws:policy/AdministratorAccess
+
+  prowlerAdditionsPolicyName:
     Type: String
 
-  stateReadWritePolicyName:
+  prowlerSecurityHubPolicyName:
     Type: String
 
-  assumeTerraformRolePolicyName:
+  scoutSuitePolicyName:
     Type: String
 
-  terraformPolicyPath:
+  auditorPolicyPath:
     Type: String
     Default: '/'
 
@@ -51,13 +55,14 @@ Resources:
       Name: !Ref permissionSetName
       Description: !Sub '${permissionSetName} access to AWS organization'
       InstanceArn: !Ref instanceArn
+      ManagedPolicies: !Ref managedPolicies
       CustomerManagedPolicyReferences:
-        - Name: !Ref stateReadOnlyPolicyName
-          Path: !Ref terraformPolicyPath
-        - Name: !Ref stateReadWritePolicyName
-          Path: !Ref terraformPolicyPath
-        - Name: !Ref assumeTerraformRolePolicyName
-          Path: !Ref terraformPolicyPath
+        - Name: !Ref prowlerAdditionsPolicyName
+          Path: !Ref auditorPolicyPath
+        - Name: !Ref prowlerSecurityHubPolicyName
+          Path: !Ref auditorPolicyPath
+        - Name: !Ref scoutSuitePolicyName
+          Path: !Ref auditorPolicyPath
       SessionDuration: !Ref sessionDuration
 
   AssignmentMaster:
