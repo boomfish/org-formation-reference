@@ -41,6 +41,10 @@ GuardDuty:
   DependsOn: [ Types ]
   Path: ./templates/070-guard-duty/_tasks.yml
 
+Auditor:
+  Type: include
+  Path: ./templates/075-auditor/_tasks.yml
+
 AwsConfigInventory:
   Type: include
   Path: ./templates/080-aws-config-inventory/_tasks.yml
