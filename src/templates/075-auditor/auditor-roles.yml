@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: '2010-09-09-OC'
+
+Parameters:
+  roleName:
+    Type: String
+  accountId:
+    Description: The identifier from the account used to perform audits
+    Type: String
+  maxAssumeRoleDuration:
+    Type: Number
+  iamPolicyName:
+    Type: String
+  iamGroupName:
+    Type: String
+  prowlerAdditionsPolicyName:
+    Type: String
+  prowlerSecurityHubPolicyName:
+    Type: String
+  scoutSuitePolicyName:
+    Type: String
+
+Resources:
+
+  AssumableAuditorRole:
+    OrganizationBinding: !Ref TargetBinding
+    Type: AWS::IAM::Role
+    Properties:
+      MaxSessionDuration: !Ref maxAssumeRoleDuration
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${accountId}:root'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/SecurityAudit
+        - arn:aws:iam::aws:policy/job-function/ViewOnlyAccess
+        - !Sub 'arn:aws:iam::${AWSAccount.AccountId}:policy/${prowlerAdditionsPolicyName}'
+        - !Sub 'arn:aws:iam::${AWSAccount.AccountId}:policy/${prowlerSecurityHubPolicyName}'
+        - !Sub 'arn:aws:iam::${AWSAccount.AccountId}:policy/${scoutSuitePolicyName}'
+      RoleName: !Ref roleName
+
+  AssumeAuditorRolePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Ref iamPolicyName
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Resource: Fn::EnumTargetAccounts TargetBinding 'arn:aws:iam::${account}:role/${roleName}'
+
+  AssumeAuditorGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: !Ref iamGroupName
+      Path: /audit/
+      ManagedPolicyArns:
+        - !Ref AssumeAuditorRolePolicy
+        - arn:aws:iam::aws:policy/SecurityAudit
+        - arn:aws:iam::aws:policy/job-function/ViewOnlyAccess
+        - !Sub 'arn:aws:iam::${AWSAccount.AccountId}:policy/${prowlerAdditionsPolicyName}'
+        - !Sub 'arn:aws:iam::${AWSAccount.AccountId}:policy/${prowlerSecurityHubPolicyName}'
+        - !Sub 'arn:aws:iam::${AWSAccount.AccountId}:policy/${scoutSuitePolicyName}'

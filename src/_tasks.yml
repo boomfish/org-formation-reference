@@ -50,6 +50,10 @@ GuardDuty:
   DependsOn: [ OrganizationBuild, Types ]
   Path: ./templates/070-guard-duty/_tasks.yml
 
+Auditor:
+  Type: include
+  Path: ./templates/075-auditor/_tasks.yml
+
 AwsConfigInventory:
   Type: include
   DependsOn: [ OrganizationBuild ]

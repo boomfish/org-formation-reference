@@ -1,0 +1,69 @@
+Parameters:
+  <<: !Include '../../_parameters.yml'
+
+  appName:
+    Type: String
+    Default: 'auditor'
+
+  accountId:
+    Type: String
+    Description: The identifier from the account used to perform audits
+    Default: !Ref SecurityAccount
+
+  roleName:
+    Type: String
+    Default: 'AssumableAuditorRole'
+
+  maxAssumeRoleDuration:
+    Type: Number
+    Default: 14400
+
+  prowlerAdditionsPolicyName:
+    Type: String
+    Default: 'prowler-additions'
+
+  prowlerSecurityHubPolicyName:
+    Type: String
+    Default: 'prowler-securityhub'
+
+  scoutSuitePolicyName:
+    Type: String
+    Default: 'scoutsuite'
+
+AuditorPolicies:
+  Type: update-stacks
+  Template: ./auditor-policies.yml
+  StackName: !Sub '${resourcePrefix}-${appName}-policies'
+  StackDescription: IAM polices for performing AWS account audits
+  DefaultOrganizationBinding:
+    IncludeMasterAccount: true
+    Account: '*'
+    Region: !Ref primaryRegion
+  Parameters:
+    prowlerAdditionsPolicyName: !Sub '${resourcePrefix}-${appName}-${prowlerAdditionsPolicyName}'
+    prowlerSecurityHubPolicyName: !Sub '${resourcePrefix}-${appName}-${prowlerSecurityHubPolicyName}'
+    scoutSuitePolicyName: !Sub '${resourcePrefix}-${appName}-${scoutSuitePolicyName}'
+
+AuditorRoles:
+  Type: update-stacks
+  DependsOn: AuditorPolicies
+  Template: ./auditor-roles.yml
+  StackName: !Sub '${resourcePrefix}-${appName}-roles'
+  StackDescription: IAM roles for performing AWS account audits
+  DefaultOrganizationBindingRegion: !Ref primaryRegion
+  DefaultOrganizationBinding:
+    Account: !Ref accountId
+  OrganizationBindings:
+    TargetBinding:
+      Account: '*'
+      ExcludeAccount: !Ref accountId
+  Parameters:
+    roleName: !Ref roleName
+    maxAssumeRoleDuration: !Ref maxAssumeRoleDuration
+    accountId: !Ref accountId
+    iamPolicyName: !Sub '${resourcePrefix}-${appName}-assume'
+    iamGroupName: !Sub '${resourcePrefix}-${appName}'
+    prowlerAdditionsPolicyName: !Sub '${resourcePrefix}-${appName}-${prowlerAdditionsPolicyName}'
+    prowlerSecurityHubPolicyName: !Sub '${resourcePrefix}-${appName}-${prowlerSecurityHubPolicyName}'
+    scoutSuitePolicyName: !Sub '${resourcePrefix}-${appName}-${scoutSuitePolicyName}'
+  
