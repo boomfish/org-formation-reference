@@ -39,9 +39,7 @@ Conditions:
   includePermissionSet: !Equals [ '', !Ref permissionSetArn ]
   includeMaster: !Not [ !Equals [ '', !Ref masterAccountId ] ]
   includeInlinePolicy: !Not [ !Equals [ '', !Ref inlinePolicy ] ]
-  includeManagedPolicies: !Not
-    - !Equals
-      - !Join ['', !Ref managedPolicies]
+  includeManagedPolicies: !Not [ !Equals [ '',  !Join [ '', !Ref managedPolicies ] ] ]
 
 Resources:
 
