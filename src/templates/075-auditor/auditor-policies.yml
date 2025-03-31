@@ -126,6 +126,8 @@ Resources:
               - ec2:DescribeVpcs
               - ec2:DescribeVpnConnections
               - ec2:DescribeVpnGateways
+              - ec2:GetEbsDefaultKmsKeyId
+              - ec2:GetEbsEncryptionByDefault
               - ecr:DescribeImages
               - ecr:DescribeRepositories
               - ecr:GetLifecyclePolicy
@@ -232,5 +234,5 @@ Resources:
               - sns:ListSubscriptions
               - sns:ListTopics
               - sqs:GetQueueAttributes
-              - sqs:ListQueue
+              - sqs:ListQueues
             Resource: '*'
